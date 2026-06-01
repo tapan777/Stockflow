@@ -20,7 +20,7 @@ async function signup(req, res) {
 
   try {
     const existing = await authService.findUserByEmail(email);
-    if (existing) return send.conflict(res, 'Email already registered');
+    if (existing) return send.conflict(res, 'This email is already registered');
 
     const { userId, orgId, email: userEmail, organizationName: orgName } =
       await authService.createUserWithOrg(email, password, organizationName);
@@ -28,7 +28,7 @@ async function signup(req, res) {
     return send.created(res, {
       token: signToken({ userId, orgId, email: userEmail }),
       user: { id: userId, email: userEmail, organizationId: orgId, organizationName: orgName },
-    });
+    }, `Welcome to StockFlow! Your account has been created.`);
   } catch (err) {
     console.error('[signup]', err);
     return send.serverError(res);
@@ -49,7 +49,7 @@ async function login(req, res) {
     return send.ok(res, {
       token: signToken({ userId: user.id, orgId: user.organization_id, email: user.email }),
       user: { id: user.id, email: user.email, organizationId: user.organization_id, organizationName: user.org_name },
-    });
+    }, `Welcome back, ${user.org_name}!`);
   } catch (err) {
     console.error('[login]', err);
     return send.serverError(res);
@@ -66,7 +66,7 @@ async function me(req, res) {
       email: user.email,
       organizationId: user.organization_id,
       organizationName: user.org_name,
-    });
+    }, 'User retrieved');
   } catch (err) {
     console.error('[me]', err);
     return send.serverError(res);
@@ -74,10 +74,7 @@ async function me(req, res) {
 }
 
 async function logout(req, res) {
-  // JWT is stateless — real logout is client-side token removal.
-  // This endpoint exists so the client has a clean API call to hook
-  // into (e.g. future refresh-token invalidation).
-  return send.ok(res, { message: 'Logged out successfully' });
+  return send.ok(res, null, 'You have been logged out successfully');
 }
 
 module.exports = { signup, login, me, logout };

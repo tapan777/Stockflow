@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (localStorage.getItem('token')) {
       getCurrentUser()
-        .then(setUser)
+        .then(res => setUser(res.data))
         .catch(() => localStorage.removeItem('token'))
         .finally(() => setLoading(false))
     } else {
@@ -19,19 +19,21 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (email, password) => {
-    const data = await loginUser(email, password)
-    localStorage.setItem('token', data.token)
-    setUser(data.user)
+    const res = await loginUser(email, password)
+    localStorage.setItem('token', res.data.token)
+    setUser(res.data.user)
+    return res
   }
 
   const signup = async (email, password, organizationName) => {
-    const data = await signupUser(email, password, organizationName)
-    localStorage.setItem('token', data.token)
-    setUser(data.user)
+    const res = await signupUser(email, password, organizationName)
+    localStorage.setItem('token', res.data.token)
+    setUser(res.data.user)
+    return res
   }
 
   const logout = async () => {
-    try { await logoutUser() } catch (_) { /* token may already be invalid */ }
+    try { await logoutUser() } catch (_) {}
     localStorage.clear()
     setUser(null)
   }

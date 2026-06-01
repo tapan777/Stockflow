@@ -15,7 +15,7 @@ export default function Products() {
 
   const loadProducts = useCallback((q = '') => {
     fetchProducts(q)
-      .then(setProducts)
+      .then(res => setProducts(res.data))
       .catch(err => toast('error', err.message))
       .finally(() => setLoading(false))
   }, [])
@@ -30,9 +30,9 @@ export default function Products() {
 
   const handleDeleteConfirm = async () => {
     try {
-      await deleteProduct(deleteTarget.id)
+      const res = await deleteProduct(deleteTarget.id)
       setProducts(prev => prev.filter(p => p.id !== deleteTarget.id))
-      toast('success', `"${deleteTarget.name}" deleted`)
+      toast('success', res.message)
     } catch (err) {
       toast('error', err.message)
     } finally {
@@ -46,11 +46,11 @@ export default function Products() {
     const adj = parseInt(adjustValue, 10)
     if (isNaN(adj) || adj === 0) return setAdjustError('Enter a non-zero number')
     try {
-      const updated = await adjustProductStock(product.id, adj)
-      setProducts(prev => prev.map(p => p.id === product.id ? updated : p))
+      const res = await adjustProductStock(product.id, adj)
+      setProducts(prev => prev.map(p => p.id === product.id ? res.data : p))
       setAdjusting(null)
       setAdjustValue('')
-      toast('success', `${updated.name}: ${updated.quantity_on_hand} units`)
+      toast('success', res.message)
     } catch (err) {
       setAdjustError(err.message)
     }
@@ -62,16 +62,13 @@ export default function Products() {
 
   return (
     <div>
-      {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Products</h2>
           <p className="text-gray-500 text-sm mt-0.5">{products.length} product{products.length !== 1 ? 's' : ''}</p>
         </div>
-        <Link
-          to="/products/new"
-          className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-sm w-full sm:w-auto"
-        >
+        <Link to="/products/new"
+          className="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shadow-sm w-full sm:w-auto">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
@@ -80,19 +77,13 @@ export default function Products() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        {/* Search */}
         <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-gray-100">
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
-            <input
-              type="text"
-              value={search}
-              onChange={handleSearch}
-              placeholder="Search by name or SKU..."
-              className="w-full sm:max-w-sm pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
-            />
+            <input type="text" value={search} onChange={handleSearch} placeholder="Search by name or SKU..."
+              className="w-full sm:max-w-sm pl-9 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
           </div>
         </div>
 
@@ -100,11 +91,7 @@ export default function Products() {
           <div className="py-14 text-center">
             <div className="text-4xl mb-3">📦</div>
             <p className="text-gray-500 font-medium text-sm">{search ? 'No products found' : 'No products yet'}</p>
-            {!search && (
-              <Link to="/products/new" className="mt-3 inline-block text-indigo-600 hover:underline text-sm font-medium">
-                Add your first product →
-              </Link>
-            )}
+            {!search && <Link to="/products/new" className="mt-3 inline-block text-indigo-600 hover:underline text-sm font-medium">Add your first product →</Link>}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -121,24 +108,18 @@ export default function Products() {
                   <tr key={product.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <div className="font-medium text-gray-800 text-sm">{product.name}</div>
-                      {product.description && (
-                        <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[160px] sm:max-w-xs">{product.description}</div>
-                      )}
+                      {product.description && <div className="text-xs text-gray-400 mt-0.5 truncate max-w-[160px] sm:max-w-xs">{product.description}</div>}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 font-mono text-gray-500 text-xs sm:text-sm">{product.sku}</td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       {adjusting === product.id ? (
                         <div className="flex flex-col gap-1">
                           <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              value={adjustValue}
+                            <input type="number" value={adjustValue}
                               onChange={e => { setAdjustValue(e.target.value); setAdjustError('') }}
                               placeholder="+/-"
                               className="w-16 sm:w-20 px-2 py-1.5 border border-indigo-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                              autoFocus
-                              onKeyDown={e => e.key === 'Enter' && handleAdjust(product)}
-                            />
+                              autoFocus onKeyDown={e => e.key === 'Enter' && handleAdjust(product)} />
                             <button onClick={() => handleAdjust(product)} className="text-xs text-emerald-600 font-semibold hover:underline">Apply</button>
                             <button onClick={() => setAdjusting(null)} className="text-xs text-gray-400 hover:underline">✕</button>
                           </div>
