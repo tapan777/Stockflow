@@ -38,7 +38,7 @@ export default function Settings() {
         <p className="text-gray-500 text-sm mt-1">Manage your organization preferences</p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-8 max-w-lg">
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-8 max-w-lg">
         <div className="mb-6 pb-6 border-b border-gray-100">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">Organization</p>
           <p className="text-gray-800 font-semibold text-lg">{settings?.organizationName}</p>

@@ -98,7 +98,7 @@ export default function ProductForm() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm p-8 max-w-2xl">
+      <div className="bg-white rounded-xl shadow-sm p-4 sm:p-8 max-w-2xl">
         {error && (
           <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-center gap-2">
             <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -144,7 +144,7 @@ export default function ProductForm() {
             <input type="number" value={form.low_stock_threshold} onChange={set('low_stock_threshold')} min={0} className={inputCls + ' max-w-xs'} placeholder="e.g. 10" />
           </Field>
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button type="submit" disabled={loading} className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors disabled:opacity-60 text-sm shadow-sm">
               {loading ? 'Saving...' : isEdit ? 'Update Product' : 'Add Product'}
             </button>
