@@ -4,7 +4,7 @@ const send = require('../utils/response');
 async function getStats(req, res) {
   try {
     const stats = await dashboardService.getDashboardStats(req.user.orgId);
-    return send.ok(res, stats);
+    return send.ok(res, stats, 'Dashboard data retrieved');
   } catch (err) {
     console.error('[dashboard.getStats]', err);
     return send.serverError(res);

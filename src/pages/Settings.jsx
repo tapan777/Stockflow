@@ -10,7 +10,10 @@ export default function Settings() {
 
   useEffect(() => {
     fetchSettings()
-      .then(data => { setSettings(data); setThreshold(data.defaultLowStockThreshold ?? 5) })
+      .then(res => {
+        setSettings(res.data)
+        setThreshold(res.data.defaultLowStockThreshold ?? 5)
+      })
       .catch(err => toast('error', err.message))
       .finally(() => setLoading(false))
   }, [])
@@ -19,9 +22,9 @@ export default function Settings() {
     e.preventDefault()
     setSaving(true)
     try {
-      const updated = await saveSettings(Number(threshold))
-      setSettings(updated)
-      toast('success', 'Settings saved successfully')
+      const res = await saveSettings(Number(threshold))
+      setSettings(res.data)
+      toast('success', res.message)
     } catch (err) {
       toast('error', err.message)
     } finally {
@@ -33,8 +36,8 @@ export default function Settings() {
 
   return (
     <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-800">Settings</h2>
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Settings</h2>
         <p className="text-gray-500 text-sm mt-1">Manage your organization preferences</p>
       </div>
 
@@ -54,14 +57,14 @@ export default function Settings() {
               value={threshold}
               onChange={e => setThreshold(e.target.value)}
               min={0}
-              required
               className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
             />
             <p className="text-xs text-gray-400 mt-2">
               Products with quantity ≤ this value are flagged as low stock when no product-specific threshold is set.
             </p>
           </div>
-          <button type="submit" disabled={saving} className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors disabled:opacity-60 text-sm shadow-sm">
+          <button type="submit" disabled={saving}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors disabled:opacity-60 text-sm shadow-sm">
             {saving ? 'Saving...' : 'Save Settings'}
           </button>
         </form>

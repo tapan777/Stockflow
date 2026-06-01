@@ -21,13 +21,13 @@ async function request(method, path, body) {
     throw new Error(json.message || json.error || 'Request failed')
   }
 
-  // Unwrap the { success: true, data: ... } envelope
-  return json.data !== undefined ? json.data : json
+  // Return full { success, message, data } so callers can use server messages
+  return json
 }
 
 export const api = {
-  get:    (path)        => request('GET',    path),
-  post:   (path, body)  => request('POST',   path, body),
-  put:    (path, body)  => request('PUT',    path, body),
-  delete: (path)        => request('DELETE', path),
+  get:    (path)       => request('GET',    path),
+  post:   (path, body) => request('POST',   path, body),
+  put:    (path, body) => request('PUT',    path, body),
+  delete: (path)       => request('DELETE', path),
 }
